@@ -43,7 +43,7 @@ Required tools:
 Install Playwright browser channels if needed:
 
 ```bash
-mvn -B -DskipTests exec:java -Dexec.mainClass=com.microsoft.playwright.CLI -Dexec.args="install chrome msedge"
+mvn -B -DskipTests exec:java -Dexec.mainClass=com.microsoft.playwright.CLI -Dexec.args="install --with-deps --force chrome msedge"
 ```
 
 Run UAT UI suite on both Chrome and Edge:

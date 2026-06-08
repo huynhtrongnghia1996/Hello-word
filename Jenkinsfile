@@ -22,7 +22,7 @@ pipeline {
 
         stage('Install Playwright Browsers') {
             steps {
-                sh 'mvn -B -DskipTests exec:java -Dexec.mainClass=com.microsoft.playwright.CLI -Dexec.args="install chrome msedge"'
+                sh 'mvn -B -DskipTests exec:java -Dexec.mainClass=com.microsoft.playwright.CLI -Dexec.args="install --with-deps --force chrome msedge"'
             }
         }
 
