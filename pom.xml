@@ -120,7 +120,6 @@
                     </suiteXmlFiles>
                     <systemPropertyVariables>
                         <env>${env}</env>
-                        <browser>${browser}</browser>
                         <headless>${headless}</headless>
                         <browser.headless>${headless}</browser.headless>
                     </systemPropertyVariables>
