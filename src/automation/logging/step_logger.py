@@ -19,11 +19,21 @@ def get_step_logs() -> list[str]:
     return list(_step_logs.get() or [])
 
 
+def safe_terminal_print(message: str) -> None:
+    try:
+        print(message, flush=True)
+    except OSError:
+        try:
+            print(message, file=sys.stderr, flush=True)
+        except OSError:
+            # Some Windows terminals can expose invalid handles under pytest capture.
+            logger.debug("Terminal output handle is unavailable for message: {}", message)
+
+
 def record_step_log(message: str) -> None:
     logs = _step_logs.get()
     if logs is not None:
         logs.append(message)
-    print(message, file=sys.__stdout__, flush=True)
 
 
 def log_method(step_name: str | None = None) -> Callable[[Callable[P, R]], Callable[P, R]]:

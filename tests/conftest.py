@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import os
-import sys
 from collections.abc import Generator
 from pathlib import Path
 from typing import Any, cast
@@ -11,7 +10,7 @@ from playwright.sync_api import Browser, BrowserContext, Page, Playwright, sync_
 from pytest_html import extras
 
 from automation.config import get_settings, settings
-from automation.logging import get_step_logs, logger, reset_step_logs
+from automation.logging import get_step_logs, logger, reset_step_logs, safe_terminal_print
 from automation.pages import PageManager
 
 
@@ -101,8 +100,7 @@ def pytest_runtest_makereport(item: pytest.Item, call: pytest.CallInfo):
     method_logs = get_step_logs()
     if method_logs:
         report.extras.append(extras.text("\n".join(method_logs), name="Method logs"))
-        for line in method_logs:
-            print(line, file=sys.__stdout__, flush=True)
+        cast(Any, report).method_logs = method_logs
 
     if report.passed:
         logger.success(message)
@@ -134,4 +132,7 @@ def pytest_runtest_logreport(report: pytest.TestReport) -> None:
         return
     if report.when == "setup" and report.passed:
         return
-    print(f"[{report.outcome.upper()}] {report.nodeid}")
+    method_logs = getattr(report, "method_logs", [])
+    for line in method_logs:
+        safe_terminal_print(line)
+    safe_terminal_print(f"[{report.outcome.upper()}] {report.nodeid}")
