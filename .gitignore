@@ -1,7 +1,6 @@
 target/
 allure-results/
 allure-report/
-.allure/
 logs/
 *.log
 .idea/
@@ -9,3 +8,13 @@ logs/
 *.iml
 .DS_Store
 .env
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.pyright/
+test-results/
+playwright-report/
+.allure/
+.uv-cache/

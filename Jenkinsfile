@@ -1,54 +1,70 @@
 pipeline {
     agent any
 
-    tools {
-        jdk 'java-17'
-        maven 'maven-3'
-    }
-
     parameters {
         choice(name: 'ENV', choices: ['UAT'], description: 'Target environment')
-        choice(name: 'SUITE', choices: ['src/test/resources/testng/testng-uat-ui.xml', 'src/test/resources/testng/testng-uat-login.xml'], description: 'TestNG suite file')
-        choice(name: 'BROWSER', choices: ['', 'chrome', 'edge'], description: 'Override browser. Empty runs suite browsers.')
+        choice(name: 'BROWSER', choices: ['chrome', 'edge'], description: 'Browser channel')
         choice(name: 'HEADLESS', choices: ['true', 'false'], description: 'Run browser in headless mode')
+        choice(name: 'MARKER', choices: ['smoke', 'login', 'regression'], description: 'Pytest marker')
+        string(name: 'PYTEST_ARGS', defaultValue: '', description: 'Extra pytest arguments')
+    }
+
+    environment {
+        PIP_DISABLE_PIP_VERSION_CHECK = '1'
+        UV_CACHE_DIR = '.uv-cache'
     }
 
     stages {
         stage('Checkout') {
+            steps { checkout scm }
+        }
+
+        stage('Install') {
             steps {
-                checkout scm
+                sh '''
+                    python3 -m pip install --user uv
+                    export PATH="$HOME/.local/bin:$PATH"
+                    uv sync --extra dev
+                    uv run playwright install --with-deps chrome msedge
+                '''
             }
         }
 
-        stage('Install Playwright Browsers') {
+        stage('Quality') {
             steps {
-                sh 'mvn -B -DskipTests exec:java -Dexec.mainClass=com.microsoft.playwright.CLI -Dexec.args="install --with-deps --force chrome msedge"'
+                sh '''
+                    export PATH="$HOME/.local/bin:$PATH"
+                    uv run ruff check .
+                    uv run pyright
+                '''
             }
         }
 
         stage('Run Tests') {
             steps {
-                sh '''
-                    mvn -B clean test \
-                      -Denv=${ENV} \
-                      -DsuiteXmlFile=${SUITE} \
-                      -Dbrowser=${BROWSER} \
-                      -Dbrowser.headless=${HEADLESS}
-                '''
+                withCredentials([string(credentialsId: 'automation-account-password', variable: 'ACCOUNT_PASSWORD')]) {
+                    sh '''
+                        export PATH="$HOME/.local/bin:$PATH"
+                        ENV=${ENV} BROWSER=${BROWSER} BROWSER_HEADLESS=${HEADLESS} \
+                        uv run pytest -m ${MARKER} --alluredir=allure-results ${PYTEST_ARGS}
+                    '''
+                }
             }
         }
 
         stage('Generate Allure HTML Report') {
             steps {
-                sh 'mvn -B allure:report'
+                sh '''
+                    export PATH="$HOME/.local/bin:$PATH"
+                    uv run allure generate allure-results -o allure-report --clean || true
+                '''
             }
         }
     }
 
     post {
         always {
-            archiveArtifacts artifacts: 'target/site/allure-maven-plugin/**/*,target/screenshots/**/*,target/traces/**/*,logs/**/*', allowEmptyArchive: true
-            allure includeProperties: false, jdk: '', results: [[path: 'target/allure-results']]
+            archiveArtifacts artifacts: 'allure-report/**/*,allure-results/**/*,test-results/**/*,logs/**/*', allowEmptyArchive: true
         }
     }
 }

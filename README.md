@@ -1,6 +1,6 @@
-# EFMS Automation Framework
+# EFMS/eTMS Automation Framework - Python
 
-Automation framework for EFMS UAT using Java 17, Maven, TestNG, Playwright Java, Rest Assured, PostgreSQL, Allure, Log4j2, Git and Jenkins.
+Automation framework for eFMS/eTMS using Python 3.12, pytest, Playwright Python, httpx, psycopg, Allure, logging, Git and Jenkins.
 
 ## Default environment
 
@@ -9,138 +9,144 @@ Automation framework for EFMS UAT using Java 17, Maven, TestNG, Playwright Java,
 - eTMS URL: `https://staging-itllog-etms.logtechub.com/en/#/app/default/home`
 - Shared login username: `henry.hieu`
 - Supported browsers: `chrome`, `edge`
-- Default browser mode: `browser.headless=false` so Chrome/Edge opens in headed mode when a display is available
+- Default browser mode: `BROWSER_HEADLESS=false` so Chrome/Edge opens in headed mode when a display is available
 
 ## Project structure
 
 ```text
-src/main/java/com/logtechub/automation
-├── api
-├── config
-├── database
-├── logging
-├── pages
-│   ├── BasePage.java
-│   ├── efms/EfmsHomePage.java
-│   ├── etms/EtmsHomePage.java
-│   └── PageManager.java
-├── playwright
-└── reporting
+src/automation
+|-- api
+|-- config
+|-- db
+|-- logging
+|-- pages
+|   |-- base_page.py
+|   |-- page_manager.py
+|   |-- efms/efms_home_page.py
+|   `-- etms/etms_home_page.py
+`-- reporting
 
-src/test/java/com/logtechub/automation
-├── base
-├── listeners
-└── tests/ui
-    ├── efms
-    └── etms
+tests
+|-- conftest.py
+|-- ui
+|   |-- efms
+|   `-- etms
+|-- api
+`-- db
 
-src/test/resources
-├── config/uat.properties
-├── testng/testng-uat-ui.xml
-├── testng/testng-uat-login.xml
-├── allure.properties
-└── log4j2.xml
+src/test/resources/report-html
+|-- html
+`-- images
 ```
 
 ## Local setup
 
 Required tools:
 
-- Java 17+
-- Maven 3.9+
-- Google Chrome and Microsoft Edge installed for Playwright channel mode
+- Python 3.12+
+- Google Chrome and Microsoft Edge installed, or allow Playwright to install them
 
-Install Playwright browser channels if needed:
-
-```bash
-mvn -B -DskipTests exec:java -Dexec.mainClass=com.microsoft.playwright.CLI -Dexec.args="install --with-deps --force chrome msedge"
-```
-
-Run UAT UI suite on both Chrome and Edge:
+Install dependencies with uv:
 
 ```bash
-mvn clean test -Denv=UAT -DsuiteXmlFile=src/test/resources/testng/testng-uat-ui.xml -Dbrowser.headless=false
+python3 -m pip install --user uv
+uv sync --extra dev
+uv run playwright install --with-deps chrome msedge
 ```
 
-Run only Chrome:
+Alternative with pip:
 
 ```bash
-mvn clean test -Denv=UAT -DsuiteXmlFile=src/test/resources/testng/testng-uat-single-browser.xml -Dbrowser=chrome -Dbrowser.headless=false
+python3 -m venv .venv
+. .venv/bin/activate
+pip install -e '.[dev]'
+python -m playwright install --with-deps chrome msedge
 ```
 
-Run only Edge:
+## Run tests
+
+Run smoke suite for eFMS/eTMS:
 
 ```bash
-mvn clean test -Denv=UAT -DsuiteXmlFile=src/test/resources/testng/testng-uat-single-browser.xml -Dbrowser=edge -Dbrowser.headless=false
+uv run pytest -m smoke --browser chrome --browser-headless true
 ```
 
-Run in headless mode for CI/server environments:
+Run only eFMS:
 
 ```bash
-mvn clean test -Denv=UAT -DsuiteXmlFile=src/test/resources/testng/testng-uat-ui.xml -Dbrowser.headless=true
+uv run pytest -m 'smoke and efms' --browser chrome --browser-headless true
 ```
 
-Run login suite for both eFMS and eTMS.
-
-Pass the account password at runtime through a system property:
+Run only eTMS:
 
 ```bash
-mvn clean test -Denv=UAT -DsuiteXmlFile=src/test/resources/testng/testng-uat-login.xml -Daccount.password='<password>' -Dbrowser.headless=true
+uv run pytest -m 'smoke and etms' --browser edge --browser-headless true
 ```
 
-or through an environment variable:
+Run headed mode:
 
 ```bash
-export ACCOUNT_PASSWORD='<password>'
-mvn clean test -Denv=UAT -DsuiteXmlFile=src/test/resources/testng/testng-uat-login.xml -Dbrowser.headless=true
+uv run pytest -m smoke --browser chrome --browser-headless false -s
 ```
 
-Run tests and generate a static Allure HTML report:
+Run login suite for both eFMS and eTMS. Pass the password at runtime:
 
 ```bash
-mvn clean test allure:report -Denv=UAT -DsuiteXmlFile=src/test/resources/testng/testng-uat-ui.xml -Dbrowser.headless=true
+ACCOUNT_PASSWORD='<password>' uv run pytest -m login --browser chrome --browser-headless true
 ```
 
-The generated HTML entry point is:
+If `ACCOUNT_PASSWORD` is not provided, login tests are skipped safely.
+
+## Allure report
+
+Generate Allure results:
+
+```bash
+uv run pytest -m smoke --alluredir=allure-results
+```
+
+Generate static HTML report:
+
+```bash
+uv run allure generate allure-results -o allure-report --clean
+```
+
+HTML entry point:
 
 ```text
-target/site/allure-maven-plugin/index.html
-```
-
-If the tests already ran and `target/allure-results` exists, generate only the HTML report:
-
-```bash
-mvn allure:report
+allure-report/index.html
 ```
 
 ## Configuration
 
-UAT configuration is stored in `src/test/resources/config/uat.properties`.
+Configuration is defined in `src/automation/config/settings.py` and can be overridden by environment variables or `.env`.
 
-Sensitive values can be overridden by system properties or environment variables. Examples:
-
-```bash
-mvn clean test -Ddb.url=jdbc:postgresql://host:5432/db -Ddb.username=user -Ddb.password=secret
-```
-
-or
+Example:
 
 ```bash
-export DB_URL=jdbc:postgresql://host:5432/db
-export DB_USERNAME=user
-export DB_PASSWORD=secret
+export BROWSER=edge
+export BROWSER_HEADLESS=true
+export ACCOUNT_PASSWORD='<password>'
+export DB_URL='postgresql://host:5432/db'
 ```
 
-Login password should be supplied as `-Daccount.password=...` or `ACCOUNT_PASSWORD`.
+Never commit real passwords or tokens to Git.
+
+## Code quality
+
+```bash
+uv run ruff check .
+uv run ruff format .
+uv run pyright
+```
 
 ## Jenkins
 
-`Jenkinsfile` provides a parameterized pipeline for UAT execution. Configure Jenkins tools named `java-17` and `maven-3`, plus the Allure plugin.
+`Jenkinsfile` provides a parameterized Python pipeline using uv, pytest, Playwright and Allure artifacts.
 
-## Python migration proposal
-
-If the framework needs to move from Java to Python, see:
+## Design documents
 
 ```text
+reports/automation-test-framework-design.md
 reports/python-automation-framework-migration-plan.md
 ```
