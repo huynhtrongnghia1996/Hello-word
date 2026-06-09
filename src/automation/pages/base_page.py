@@ -27,7 +27,9 @@ class BasePage:
             if locator is not None:
                 return locator
             self.page.wait_for_timeout(250)
-        raise AssertionError(f"Could not find visible {element_name} within {settings.browser_timeout} ms")
+        raise AssertionError(
+            f"Could not find visible {element_name} within {settings.browser_timeout} ms"
+        )
 
     def find_visible(self, selectors: list[str]) -> Locator | None:
         for selector in selectors:

@@ -39,7 +39,9 @@ def browser(pytestconfig: pytest.Config, playwright_instance: Playwright) -> Bro
 
 @pytest.fixture()
 def context(browser: Browser) -> BrowserContext:
-    context = browser.new_context(viewport={"width": settings.viewport_width, "height": settings.viewport_height})
+    context = browser.new_context(
+        viewport={"width": settings.viewport_width, "height": settings.viewport_height}
+    )
     context.set_default_timeout(settings.browser_timeout)
     yield context
     context.close()
