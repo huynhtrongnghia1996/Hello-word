@@ -1,6 +1,6 @@
 # EFMS/eTMS Automation Framework - Python
 
-Automation framework for eFMS/eTMS using Python 3.12, pytest, Playwright Python, httpx, psycopg, Allure, logging, Git and Jenkins.
+Automation framework for eFMS/eTMS using Python 3.12, pytest, Playwright Python, pytest-html, httpx, psycopg, logging, Git and Jenkins.
 
 ## Default environment
 
@@ -97,28 +97,30 @@ ACCOUNT_PASSWORD='<password>' uv run pytest -m login --browser chrome --browser-
 
 If `ACCOUNT_PASSWORD` is not provided, login tests are skipped safely.
 
-## Allure report
+## HTML report
 
-Generate Allure results:
-
-```bash
-uv run pytest -m smoke --alluredir=allure-results
-```
-
-Generate static HTML report:
+Generate a self-contained pytest-html report:
 
 ```bash
-ALLURE_VERSION=2.34.1
-mkdir -p .allure
-curl -fsSL -o .allure/allure.tgz "https://github.com/allure-framework/allure2/releases/download/${ALLURE_VERSION}/allure-${ALLURE_VERSION}.tgz"
-tar -xzf .allure/allure.tgz -C .allure
-.allure/allure-${ALLURE_VERSION}/bin/allure generate allure-results -o allure-report --clean
+uv run pytest -m smoke \
+  --browser chrome \
+  --browser-headless true \
+  --html=reports/report.html \
+  --self-contained-html
 ```
 
 HTML entry point:
 
 ```text
-allure-report/index.html
+reports/report.html
+```
+
+Failure artifacts:
+
+```text
+test-results/screenshots/
+test-results/attachments/
+logs/
 ```
 
 ## Configuration
@@ -146,7 +148,7 @@ uv run pyright
 
 ## Jenkins
 
-`Jenkinsfile` provides a parameterized Python pipeline using uv, pytest, Playwright and Allure artifacts.
+`Jenkinsfile` provides a parameterized Python pipeline using uv, pytest, Playwright and pytest-html artifacts.
 
 ## Design documents
 

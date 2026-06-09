@@ -5,8 +5,8 @@ from collections.abc import Generator
 from pathlib import Path
 from typing import Any, cast
 
-import allure
 import pytest
+from pytest_html import extras
 from playwright.sync_api import Browser, BrowserContext, Page, Playwright, sync_playwright
 
 from automation.config import get_settings, settings
@@ -16,6 +16,12 @@ from automation.pages import PageManager
 def pytest_addoption(parser: pytest.Parser) -> None:
     parser.addoption("--browser", choices=["chrome", "edge"], default=None)
     parser.addoption("--browser-headless", choices=["true", "false"], default=None)
+
+
+def pytest_configure(config: pytest.Config) -> None:
+    del config
+    Path("reports").mkdir(exist_ok=True)
+    Path(settings.screenshot_dir).mkdir(parents=True, exist_ok=True)
 
 
 @pytest.fixture(scope="session")
@@ -85,5 +91,7 @@ def pytest_runtest_makereport(item: pytest.Item, call: pytest.CallInfo):
     screenshot_dir = Path(settings.screenshot_dir)
     screenshot_dir.mkdir(parents=True, exist_ok=True)
     screenshot_path = screenshot_dir / f"{item.name}.png"
-    screenshot = page.screenshot(path=screenshot_path, full_page=True)
-    allure.attach(screenshot, name="Failure screenshot", attachment_type=allure.attachment_type.PNG)
+    page.screenshot(path=screenshot_path, full_page=True)
+
+    report.extras = getattr(report, "extras", [])
+    report.extras.append(extras.image(str(screenshot_path), name="Failure screenshot"))

@@ -1,6 +1,4 @@
 target/
-allure-results/
-allure-report/
 logs/
 *.log
 .idea/
@@ -15,6 +13,6 @@ __pycache__/
 .ruff_cache/
 .pyright/
 test-results/
+reports/report.html
 playwright-report/
-.allure/
 .uv-cache/

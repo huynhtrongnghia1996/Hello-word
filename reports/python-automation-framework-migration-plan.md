@@ -7,7 +7,7 @@ Tai lieu nay dinh nghia cach chuyen framework hien tai tu Java/Maven/TestNG sang
 - Giam boilerplate code so voi Java.
 - Viet test nhanh hon, doc de hon cho QA Automation.
 - Debug UI/API/DB truc tiep, nhanh va it cau hinh hon.
-- Van giu du nang luc hien tai: UI, API, PostgreSQL, Allure, logging, Jenkins, Git.
+- Van giu du nang luc hien tai: UI, API, PostgreSQL, pytest-html report, logging, Jenkins, Git.
 - Ho tro eFMS va eTMS rieng biet, dung chung account/config khi can.
 
 ## 2. Stack Python de xuat
@@ -20,7 +20,7 @@ Tai lieu nay dinh nghia cach chuyen framework hien tai tu Java/Maven/TestNG sang
 | UI automation | Playwright Java | Playwright Python | API tuong duong, trace/debug rat tot |
 | API automation | Rest Assured | httpx hoac requests | De viet client, support sync/async, debug request nhanh |
 | Database | PostgreSQL JDBC | psycopg + SQLAlchemy Core optional | Native PostgreSQL, query ro rang |
-| Report | Allure TestNG | allure-pytest | Tich hop fixture/test step tot |
+| Report | TestNG/Java report | pytest-html + pytest-metadata | Nhe, mot file HTML, khong can Java/report CLI rieng |
 | Logging | Log4j2 | logging/loguru | Don gian, de format va ghi file |
 | Config | properties | pydantic-settings + .env/yaml | Validate config, doc ro, override bang env |
 | Parallel | TestNG parallel | pytest-xdist | Chay song song bang `-n auto` |
@@ -36,7 +36,8 @@ pytest
 playwright
 httpx
 psycopg[binary]
-allure-pytest
+pytest-html
+pytest-metadata
 pydantic-settings
 ruff
 pyright hoac mypy
@@ -78,7 +79,7 @@ automation-framework-python
 |       |   `-- etms
 |       |       `-- etms_home_page.py
 |       `-- reporting
-|           `-- allure_attachments.py
+|           `-- attachments.py
 `-- tests
     |-- conftest.py
     |-- ui
@@ -311,13 +312,13 @@ Nen bat khi debug:
 - Screenshot on failure.
 - Video on failure.
 - Playwright trace on failure.
-- Allure attachment cho screenshot, trace, request/response.
+- pytest-html report link toi screenshot, trace, request/response artifacts.
 
 ### Debug API
 
 - httpx event hooks hoac logging request/response.
 - pytest `-s` de xem log runtime.
-- Allure attach request/response JSON.
+- Ghi request/response JSON vao `test-results/attachments`.
 - Postman/Bruno/Insomnia de manual reproduce nhanh.
 
 ### Debug DB
@@ -334,7 +335,7 @@ ruff        lint + format
 pyright     type check nhanh
 pytest      test runner
 pre-commit  chan code xau truoc khi commit
-allure      report
+pytest-html  HTML report
 ```
 
 Vi du command:
@@ -345,7 +346,7 @@ uv run ruff format .
 uv run pyright
 uv run pytest -m smoke -n auto
 uv run pytest -m login --headed
-uv run allure generate allure-results -o allure-report --clean
+uv run pytest -m smoke --html=reports/report.html --self-contained-html
 ```
 
 ## 10. Jenkins pipeline Python de xuat
@@ -385,22 +386,17 @@ pipeline {
                 withCredentials([string(credentialsId: 'automation-account-password', variable: 'ACCOUNT_PASSWORD')]) {
                     sh '''
                         ENV=${ENV} BROWSER=${BROWSER} BROWSER_HEADLESS=${HEADLESS} \
-                        uv run pytest -m ${MARKER} -n auto --alluredir=allure-results
+                        uv run pytest -m ${MARKER} -n auto --html=reports/report.html --self-contained-html
                     '''
                 }
             }
         }
 
-        stage('Allure Report') {
-            steps {
-                sh 'uv run allure generate allure-results -o allure-report --clean'
-            }
-        }
     }
 
     post {
         always {
-            archiveArtifacts artifacts: 'allure-report/**/*,test-results/**/*', allowEmptyArchive: true
+            archiveArtifacts artifacts: 'reports/**/*,test-results/**/*', allowEmptyArchive: true
         }
     }
 }
@@ -420,7 +416,7 @@ pipeline {
 | `ConfigManager.java` | `settings.py` dung pydantic-settings |
 | `QueryExecutor.java` | `query_executor.py` dung psycopg |
 | `BaseApiClient.java` | `base_api_client.py` dung httpx |
-| `AllureAttachments.java` | helper attach dung `allure.attach` |
+| Java attachment helper | helper ghi artifact vao `test-results/attachments` |
 | `RetryAnalyzer` | `pytest-rerunfailures` |
 
 ## 12. Khuyen nghi cuoi cung
@@ -432,11 +428,11 @@ Neu doi sang Python, nen define framework theo cac contract sau:
 3. Page Object tach theo app: `efms`, `etms`; khong dung login chung neu UI/login flow co kha nang khac nhau.
 4. Secret khong commit vao Git; lay tu environment/Jenkins Credentials.
 5. Moi action UI quan trong phai `expect(...).to_be_visible()` truoc khi fill/click.
-6. Bat Allure screenshot/trace/video khi fail.
+6. Bat pytest-html screenshot/trace/video artifacts khi fail.
 7. Bat `ruff`, `pyright`, `pre-commit` trong CI de code maintain de hon.
 
 De toi uu nhat cho team QA automation, stack nen la:
 
 ```text
-Python 3.12 + uv + pytest + Playwright Python + httpx + psycopg + allure-pytest + pydantic-settings + ruff + pyright + pre-commit + Jenkins
+Python 3.12 + uv + pytest + Playwright Python + pytest-html + httpx + psycopg + pydantic-settings + ruff + pyright + pre-commit + Jenkins
 ```

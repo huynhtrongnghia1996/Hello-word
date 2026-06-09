@@ -1,11 +1,8 @@
-import allure
 import pytest
 
 from automation.config import settings
 
 
-@allure.epic("eFMS")
-@allure.feature("Login")
 @pytest.mark.login
 @pytest.mark.efms
 def test_login_efms(pages, account_password: str):

@@ -2,14 +2,14 @@
 
 ## Stack
 
-Python 3.12, pytest, Playwright Python, httpx, psycopg, allure-pytest, pydantic-settings, loguru, ruff, pyright, Git, Jenkins.
+Python 3.12, pytest, Playwright Python, pytest-html, httpx, psycopg, pydantic-settings, loguru, ruff, pyright, Git, Jenkins.
 
 ## 1. Muc tieu framework
 
 - Xay dung framework automation test dung Python thay cho Java/Maven/TestNG.
 - Ho tro UI automation cho eFMS va eTMS bang Playwright Python.
 - Ho tro API automation bang httpx va database validation bang psycopg/PostgreSQL.
-- Ho tro Allure report, screenshot khi fail, logging va Jenkins CI/CD.
+- Ho tro pytest-html report, screenshot khi fail, logging va Jenkins CI/CD.
 - Giam boilerplate code, tang toc do viet test va debug cho team QA Automation.
 
 ## 2. Kien truc tong the
@@ -18,7 +18,7 @@ Python 3.12, pytest, Playwright Python, httpx, psycopg, allure-pytest, pydantic-
 - Fixture Layer: browser, context, page va PageManager trong `tests/conftest.py`.
 - Page Object Layer: `EfmsHomePage`, `EtmsHomePage`, `BasePage`, `PageManager`.
 - Service Layer: `BaseApiClient`, `QueryExecutor`, settings, logging, reporting helpers.
-- Execution Layer: pytest CLI, Jenkins parameters, Allure artifacts.
+- Execution Layer: pytest CLI, Jenkins parameters, pytest-html report va Playwright artifacts.
 
 ## 3. Cau truc project
 
@@ -56,7 +56,7 @@ tests
 
 - Dung httpx cho API client.
 - `BaseApiClient` chuan hoa GET/POST/PUT/PATCH/DELETE.
-- Response duoc attach vao Allure de debug nhanh.
+- Response duoc ghi vao `test-results/attachments` de debug nhanh.
 - Co the mo rong them auth client, schema validation va contract tests.
 
 ## 6. Thiet ke Database Layer
@@ -77,10 +77,10 @@ tests
 
 ## 8. Reporting va Logging
 
-- Dung allure-pytest de sinh `allure-results`.
+- Dung pytest-html de sinh `reports/report.html`.
 - Screenshot duoc attach khi test fail.
 - Dung loguru ghi log file `logs/automation.log`.
-- Allure HTML report sinh ra o `allure-report/index.html`.
+- Playwright artifacts luu o `test-results/screenshots` va `test-results/attachments`.
 
 ## 9. Pytest Execution Strategy
 
@@ -105,7 +105,7 @@ uv run pytest -m smoke -n auto
   - Install Playwright browsers
   - Quality check bang ruff va pyright
   - Run pytest
-  - Generate Allure HTML report
+  - Generate pytest-html report
   - Archive artifacts
 
 ## 11. Tool de code, debug va maintain
@@ -124,5 +124,5 @@ uv run pytest -m smoke -n auto
 - Phase 1: tao Python project voi pyproject, pytest, settings, Playwright fixtures.
 - Phase 2: migrate Page Object eFMS/eTMS va smoke tests.
 - Phase 3: migrate login tests, API client, DB query executor.
-- Phase 4: tich hop Allure, screenshot, Jenkins pipeline.
+- Phase 4: tich hop pytest-html, screenshot, Jenkins pipeline.
 - Phase 5: them lint/type check/pre-commit va regression suite.

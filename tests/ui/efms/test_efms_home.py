@@ -1,9 +1,6 @@
-import allure
 import pytest
 
 
-@allure.epic("eFMS")
-@allure.feature("Home Page")
 @pytest.mark.smoke
 @pytest.mark.efms
 def test_open_efms_home_page(pages):

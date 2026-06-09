@@ -1,0 +1,1 @@
+[{"uid":"5ee8c4e2debdb5f2","name":"test_open_efms_home_page","time":{"start":1780980071200,"stop":1780980072262,"duration":1062},"status":"passed","severity":"normal"},{"uid":"99dbbd8abaa98572","name":"test_open_etms_home_page","time":{"start":1780980072592,"stop":1780980074911,"duration":2319},"status":"passed","severity":"normal"}]

@@ -1,5 +1,3 @@
-import allure
-
 from automation.config import settings
 from automation.pages.base_page import BasePage
 
@@ -19,12 +17,10 @@ class EtmsHomePage(BasePage):
         "button:has-text('Log in')", "button:has-text('Sign in')",
     ]
 
-    @allure.step("Open eTMS home page")
     def open(self) -> "EtmsHomePage":
         self.open_url(settings.etms_base_url)
         return self
 
-    @allure.step("Login to eTMS")
     def login(self, username: str, password: str) -> "EtmsHomePage":
         self.wait_for_visible(self.username_selectors, "eTMS username input").fill(username)
         self.wait_for_visible(self.password_selectors, "eTMS password input").fill(password)

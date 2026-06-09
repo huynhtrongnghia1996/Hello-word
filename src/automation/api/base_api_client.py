@@ -1,9 +1,9 @@
 from typing import Any
 
-import allure
 import httpx
 
 from automation.config import settings
+from automation.reporting import attach_text
 
 
 class BaseApiClient:
@@ -30,9 +30,8 @@ class BaseApiClient:
 
     def _request(self, method: str, path: str, **kwargs: Any) -> httpx.Response:
         response = self.client.request(method, path, **kwargs)
-        allure.attach(
+        attach_text(
+            "api-response",
             f"{method} {path}\nStatus: {response.status_code}\n{response.text}",
-            name="API response",
-            attachment_type=allure.attachment_type.TEXT,
         )
         return response

@@ -5,17 +5,18 @@ build-backend = "hatchling.build"
 [project]
 name = "efms-etms-automation"
 version = "1.0.0"
-description = "Python automation framework for eFMS/eTMS UI, API, DB and Allure reporting."
+description = "Python automation framework for eFMS/eTMS UI, API, DB and pytest-html reporting."
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "allure-pytest>=2.15.0",
     "httpx>=0.28.1",
     "loguru>=0.7.3",
     "playwright>=1.52.0",
     "psycopg[binary]>=3.2.9",
     "pydantic-settings>=2.9.1",
     "pytest>=8.4.0",
+    "pytest-html>=4.1.1",
+    "pytest-metadata>=3.1.1",
     "PyYAML>=6.0.2",
 ]
 

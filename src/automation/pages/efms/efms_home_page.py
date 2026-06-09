@@ -1,5 +1,3 @@
-import allure
-
 from automation.config import settings
 from automation.pages.base_page import BasePage
 
@@ -19,12 +17,10 @@ class EfmsHomePage(BasePage):
         "button:has-text('Log in')", "button:has-text('Sign in')",
     ]
 
-    @allure.step("Open eFMS home page")
     def open(self) -> "EfmsHomePage":
         self.open_url(settings.efms_base_url)
         return self
 
-    @allure.step("Login to eFMS")
     def login(self, username: str, password: str) -> "EfmsHomePage":
         self.wait_for_visible(self.username_selectors, "eFMS username input").fill(username)
         self.wait_for_visible(self.password_selectors, "eFMS password input").fill(password)
