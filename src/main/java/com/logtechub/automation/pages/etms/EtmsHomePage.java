@@ -55,9 +55,9 @@ public class EtmsHomePage extends BasePage {
 
     @Step("Login to eTMS")
     public EtmsHomePage login(String username, String password) {
-        firstVisible(USERNAME_SELECTORS, "eTMS username input").fill(username);
-        firstVisible(PASSWORD_SELECTORS, "eTMS password input").fill(password);
-        firstVisible(SUBMIT_SELECTORS, "eTMS login submit button").click();
+        waitForVisible(USERNAME_SELECTORS, "eTMS username input").fill(username);
+        waitForVisible(PASSWORD_SELECTORS, "eTMS password input").fill(password);
+        waitForVisible(SUBMIT_SELECTORS, "eTMS login submit button").click();
         waitForDomContentLoaded();
         return this;
     }
@@ -66,12 +66,19 @@ public class EtmsHomePage extends BasePage {
         return findVisible(PASSWORD_SELECTORS) != null;
     }
 
-    private Locator firstVisible(String[] selectors, String elementName) {
-        Locator locator = findVisible(selectors);
-        if (locator == null) {
-            throw new IllegalStateException("Could not find visible " + elementName);
+    private Locator waitForVisible(String[] selectors, String elementName) {
+        long timeoutMillis = config.getLong("browser.timeout", 30000);
+        long deadline = System.currentTimeMillis() + timeoutMillis;
+
+        while (System.currentTimeMillis() < deadline) {
+            Locator locator = findVisible(selectors);
+            if (locator != null) {
+                return locator;
+            }
+            page.waitForTimeout(250);
         }
-        return locator;
+
+        throw new IllegalStateException("Could not find visible " + elementName + " within " + timeoutMillis + " ms");
     }
 
     private Locator findVisible(String[] selectors) {
