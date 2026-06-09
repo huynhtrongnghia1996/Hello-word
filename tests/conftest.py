@@ -6,8 +6,8 @@ from pathlib import Path
 from typing import Any, cast
 
 import pytest
-from pytest_html import extras
 from playwright.sync_api import Browser, BrowserContext, Page, Playwright, sync_playwright
+from pytest_html import extras
 
 from automation.config import get_settings, settings
 from automation.pages import PageManager
