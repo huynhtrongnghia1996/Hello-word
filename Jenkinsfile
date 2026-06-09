@@ -37,11 +37,17 @@ pipeline {
                 '''
             }
         }
+
+        stage('Generate Allure HTML Report') {
+            steps {
+                sh 'mvn -B allure:report'
+            }
+        }
     }
 
     post {
         always {
-            archiveArtifacts artifacts: 'target/screenshots/**/*,target/traces/**/*,logs/**/*', allowEmptyArchive: true
+            archiveArtifacts artifacts: 'target/site/allure-maven-plugin/**/*,target/screenshots/**/*,target/traces/**/*,logs/**/*', allowEmptyArchive: true
             allure includeProperties: false, jdk: '', results: [[path: 'target/allure-results']]
         }
     }

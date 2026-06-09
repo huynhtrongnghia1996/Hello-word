@@ -32,6 +32,8 @@
         <maven-surefire-plugin.version>3.5.6</maven-surefire-plugin.version>
         <exec-maven-plugin.version>3.5.1</exec-maven-plugin.version>
         <allure-maven.version>2.15.2</allure-maven.version>
+        <allure.results.directory>${project.build.directory}/allure-results</allure.results.directory>
+        <allure.report.directory>${project.build.directory}/site/allure-maven-plugin</allure.report.directory>
     </properties>
 
     <dependencies>
@@ -122,6 +124,7 @@
                         <env>${env}</env>
                         <headless>${headless}</headless>
                         <browser.headless>${headless}</browser.headless>
+                        <allure.results.directory>${allure.results.directory}</allure.results.directory>
                     </systemPropertyVariables>
                     <argLine>-javaagent:${settings.localRepository}/org/aspectj/aspectjweaver/${aspectj.version}/aspectjweaver-${aspectj.version}.jar</argLine>
                     <testFailureIgnore>false</testFailureIgnore>
@@ -136,6 +139,11 @@
                 <groupId>io.qameta.allure</groupId>
                 <artifactId>allure-maven</artifactId>
                 <version>${allure-maven.version}</version>
+                <configuration>
+                    <reportVersion>${allure.version}</reportVersion>
+                    <resultsDirectory>${allure.results.directory}</resultsDirectory>
+                    <reportDirectory>${allure.report.directory}</reportDirectory>
+                </configuration>
             </plugin>
         </plugins>
     </build>

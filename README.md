@@ -64,10 +64,22 @@ Run only Edge:
 mvn clean test -Denv=UAT -DsuiteXmlFile=src/test/resources/testng/testng-uat-single-browser.xml -Dbrowser=edge -Dheadless=true
 ```
 
-Generate Allure report:
+Run tests and generate a static Allure HTML report:
 
 ```bash
-mvn allure:serve
+mvn clean test allure:report -Denv=UAT -DsuiteXmlFile=src/test/resources/testng/testng-uat-ui.xml -Dheadless=true
+```
+
+The generated HTML entry point is:
+
+```text
+target/site/allure-maven-plugin/index.html
+```
+
+If the tests already ran and `target/allure-results` exists, generate only the HTML report:
+
+```bash
+mvn allure:report
 ```
 
 ## Configuration
