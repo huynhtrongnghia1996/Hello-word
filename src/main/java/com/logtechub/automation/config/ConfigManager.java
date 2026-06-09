@@ -65,11 +65,27 @@ public final class ConfigManager {
     }
 
     public String baseUrl() {
-        return Objects.requireNonNull(get("app.baseUrl"), "Missing required property: app.baseUrl");
+        return Objects.requireNonNull(get("app.baseUrl", efmsBaseUrl()), "Missing required property: app.baseUrl");
+    }
+
+    public String efmsBaseUrl() {
+        return Objects.requireNonNull(get("efms.baseUrl"), "Missing required property: efms.baseUrl");
+    }
+
+    public String etmsBaseUrl() {
+        return Objects.requireNonNull(get("etms.baseUrl"), "Missing required property: etms.baseUrl");
     }
 
     public String apiBaseUri() {
         return get("api.baseUri", baseUrl());
+    }
+
+    public String accountUsername() {
+        return Objects.requireNonNull(get("account.username"), "Missing required property: account.username");
+    }
+
+    public String accountPassword() {
+        return get("account.password");
     }
 
     private void loadProperties(String env) {

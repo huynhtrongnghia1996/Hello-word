@@ -8,7 +8,8 @@
 
     <test name="UAT UI - System Browser">
         <classes>
-            <class name="com.logtechub.automation.tests.ui.UatHomePageTest"/>
+            <class name="com.logtechub.automation.tests.ui.efms.EfmsHomePageTest"/>
+            <class name="com.logtechub.automation.tests.ui.etms.EtmsHomePageTest"/>
         </classes>
     </test>
 </suite>

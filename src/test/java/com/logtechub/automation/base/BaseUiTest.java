@@ -6,6 +6,7 @@ import com.logtechub.automation.playwright.PlaywrightManager;
 import com.logtechub.automation.playwright.SupportedBrowser;
 import com.microsoft.playwright.Page;
 import org.testng.ITestResult;
+import org.testng.SkipException;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Optional;
@@ -47,5 +48,17 @@ public abstract class BaseUiTest {
             throw new IllegalStateException("PageManager has not been initialized for this test thread.");
         }
         return manager;
+    }
+
+    protected void loginWithConfiguredAccount() {
+        pages().loginPage().login(config.accountUsername(), requiredAccountPassword());
+    }
+
+    private String requiredAccountPassword() {
+        String password = config.accountPassword();
+        if (password == null || password.trim().isEmpty()) {
+            throw new SkipException("Set account.password or ACCOUNT_PASSWORD to run login tests.");
+        }
+        return password;
     }
 }

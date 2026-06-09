@@ -8,7 +8,7 @@ pipeline {
 
     parameters {
         choice(name: 'ENV', choices: ['UAT'], description: 'Target environment')
-        choice(name: 'SUITE', choices: ['src/test/resources/testng/testng-uat-ui.xml'], description: 'TestNG suite file')
+        choice(name: 'SUITE', choices: ['src/test/resources/testng/testng-uat-ui.xml', 'src/test/resources/testng/testng-uat-login.xml'], description: 'TestNG suite file')
         choice(name: 'BROWSER', choices: ['', 'chrome', 'edge'], description: 'Override browser. Empty runs suite browsers.')
         choice(name: 'HEADLESS', choices: ['true', 'false'], description: 'Run browser in headless mode')
     }

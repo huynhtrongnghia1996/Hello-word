@@ -5,7 +5,9 @@ Automation framework for EFMS UAT using Java 17, Maven, TestNG, Playwright Java,
 ## Default environment
 
 - Environment: `UAT`
-- UI URL: `https://uat-efms.logtechub.com/en/#/home`
+- eFMS URL: `https://uat-efms.logtechub.com/en/#/home`
+- eTMS URL: `https://staging-itllog-etms.logtechub.com/en/#/app/default/home`
+- Shared login username: `henry.hieu`
 - Supported browsers: `chrome`, `edge`
 - Default browser mode: `browser.headless=false` so Chrome/Edge opens in headed mode when a display is available
 
@@ -19,7 +21,9 @@ src/main/java/com/logtechub/automation
 ├── logging
 ├── pages
 │   ├── BasePage.java
-│   ├── HomePage.java
+│   ├── common/LoginPage.java
+│   ├── efms/EfmsHomePage.java
+│   ├── etms/EtmsHomePage.java
 │   └── PageManager.java
 ├── playwright
 └── reporting
@@ -28,10 +32,13 @@ src/test/java/com/logtechub/automation
 ├── base
 ├── listeners
 └── tests/ui
+    ├── efms
+    └── etms
 
 src/test/resources
 ├── config/uat.properties
 ├── testng/testng-uat-ui.xml
+├── testng/testng-uat-login.xml
 ├── allure.properties
 └── log4j2.xml
 ```
@@ -74,6 +81,21 @@ Run in headless mode for CI/server environments:
 mvn clean test -Denv=UAT -DsuiteXmlFile=src/test/resources/testng/testng-uat-ui.xml -Dbrowser.headless=true
 ```
 
+Run login suite for both eFMS and eTMS.
+
+Pass the account password at runtime through a system property:
+
+```bash
+mvn clean test -Denv=UAT -DsuiteXmlFile=src/test/resources/testng/testng-uat-login.xml -Daccount.password='<password>' -Dbrowser.headless=true
+```
+
+or through an environment variable:
+
+```bash
+export ACCOUNT_PASSWORD='<password>'
+mvn clean test -Denv=UAT -DsuiteXmlFile=src/test/resources/testng/testng-uat-login.xml -Dbrowser.headless=true
+```
+
 Run tests and generate a static Allure HTML report:
 
 ```bash
@@ -109,6 +131,8 @@ export DB_URL=jdbc:postgresql://host:5432/db
 export DB_USERNAME=user
 export DB_PASSWORD=secret
 ```
+
+Login password should be supplied as `-Daccount.password=...` or `ACCOUNT_PASSWORD`.
 
 ## Jenkins
 
