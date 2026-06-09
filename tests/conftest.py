@@ -10,6 +10,7 @@ from playwright.sync_api import Browser, BrowserContext, Page, Playwright, sync_
 from pytest_html import extras
 
 from automation.config import get_settings, settings
+from automation.logging import logger
 from automation.pages import PageManager
 
 
@@ -81,11 +82,30 @@ def account_password() -> str:
 def pytest_runtest_makereport(item: pytest.Item, call: pytest.CallInfo):
     outcome = yield
     report = outcome.get_result()
-    if report.when != "call" or not report.failed:
+
+    if report.when not in {"setup", "call"}:
+        return
+    if report.when == "setup" and report.passed:
+        return
+
+    status = report.outcome.upper()
+    message = f"{status}: {item.nodeid}"
+    report.extras = getattr(report, "extras", [])
+    report.extras.append(extras.text(message, name="Test result"))
+
+    if report.passed:
+        logger.success(message)
+    elif report.skipped:
+        logger.warning(message)
+    else:
+        logger.error(message)
+
+    if not report.failed:
         return
 
     page = cast(Any, item).funcargs.get("page")
     if page is None:
+        report.extras.append(extras.text("No Playwright page fixture available", name="Failure note"))
         return
 
     screenshot_dir = Path(settings.screenshot_dir)
@@ -93,5 +113,12 @@ def pytest_runtest_makereport(item: pytest.Item, call: pytest.CallInfo):
     screenshot_path = screenshot_dir / f"{item.name}.png"
     page.screenshot(path=screenshot_path, full_page=True)
 
-    report.extras = getattr(report, "extras", [])
     report.extras.append(extras.image(str(screenshot_path), name="Failure screenshot"))
+
+
+def pytest_runtest_logreport(report: pytest.TestReport) -> None:
+    if report.when not in {"setup", "call"}:
+        return
+    if report.when == "setup" and report.passed:
+        return
+    print(f"[{report.outcome.upper()}] {report.nodeid}")

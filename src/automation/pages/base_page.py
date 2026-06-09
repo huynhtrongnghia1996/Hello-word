@@ -3,6 +3,7 @@ import time
 from playwright.sync_api import Locator, Page
 
 from automation.config import settings
+from automation.logging import log_method
 
 
 class BasePage:
@@ -13,13 +14,16 @@ class BasePage:
     def current_url(self) -> str:
         return self.page.url
 
+    @log_method("Open URL")
     def open_url(self, url: str) -> None:
         self.page.goto(url, wait_until="domcontentloaded")
         self.wait_for_dom_content_loaded()
 
+    @log_method("Wait for DOM content loaded")
     def wait_for_dom_content_loaded(self) -> None:
         self.page.wait_for_load_state("domcontentloaded")
 
+    @log_method("Wait for element visible")
     def wait_for_visible(self, selectors: list[str], element_name: str) -> Locator:
         deadline = time.monotonic() + settings.browser_timeout / 1000
         while time.monotonic() < deadline:
