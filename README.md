@@ -136,3 +136,11 @@ Login password should be supplied as `-Daccount.password=...` or `ACCOUNT_PASSWO
 ## Jenkins
 
 `Jenkinsfile` provides a parameterized pipeline for UAT execution. Configure Jenkins tools named `java-17` and `maven-3`, plus the Allure plugin.
+
+## Python migration proposal
+
+If the framework needs to move from Java to Python, see:
+
+```text
+reports/python-automation-framework-migration-plan.md
+```
