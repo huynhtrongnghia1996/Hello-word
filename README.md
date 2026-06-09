@@ -108,7 +108,11 @@ uv run pytest -m smoke --alluredir=allure-results
 Generate static HTML report:
 
 ```bash
-uv run allure generate allure-results -o allure-report --clean
+ALLURE_VERSION=2.34.1
+mkdir -p .allure
+curl -fsSL -o .allure/allure.tgz "https://github.com/allure-framework/allure2/releases/download/${ALLURE_VERSION}/allure-${ALLURE_VERSION}.tgz"
+tar -xzf .allure/allure.tgz -C .allure
+.allure/allure-${ALLURE_VERSION}/bin/allure generate allure-results -o allure-report --clean
 ```
 
 HTML entry point:

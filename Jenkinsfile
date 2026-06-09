@@ -12,6 +12,7 @@ pipeline {
     environment {
         PIP_DISABLE_PIP_VERSION_CHECK = '1'
         UV_CACHE_DIR = '.uv-cache'
+        ALLURE_VERSION = '2.34.1'
     }
 
     stages {
@@ -56,7 +57,12 @@ pipeline {
             steps {
                 sh '''
                     export PATH="$HOME/.local/bin:$PATH"
-                    uv run allure generate allure-results -o allure-report --clean || true
+                    mkdir -p .allure
+                    if [ ! -x ".allure/allure-${ALLURE_VERSION}/bin/allure" ]; then
+                      curl -fsSL -o .allure/allure.tgz "https://github.com/allure-framework/allure2/releases/download/${ALLURE_VERSION}/allure-${ALLURE_VERSION}.tgz"
+                      tar -xzf .allure/allure.tgz -C .allure
+                    fi
+                    .allure/allure-${ALLURE_VERSION}/bin/allure generate allure-results -o allure-report --clean
                 '''
             }
         }
