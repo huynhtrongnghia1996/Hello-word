@@ -24,6 +24,7 @@
         <rest-assured.version>5.5.2</rest-assured.version>
         <postgresql.version>42.7.7</postgresql.version>
         <allure.version>2.29.1</allure.version>
+        <allure.commandline.version>2.34.1</allure.commandline.version>
         <log4j2.version>2.26.0</log4j2.version>
         <jackson.version>2.19.0</jackson.version>
         <assertj.version>3.27.3</assertj.version>
@@ -140,7 +141,7 @@
                 <artifactId>allure-maven</artifactId>
                 <version>${allure-maven.version}</version>
                 <configuration>
-                    <reportVersion>${allure.version}</reportVersion>
+                    <reportVersion>${allure.commandline.version}</reportVersion>
                     <resultsDirectory>${allure.results.directory}</resultsDirectory>
                     <reportDirectory>${allure.report.directory}</reportDirectory>
                 </configuration>
