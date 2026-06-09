@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import os
+from collections.abc import Generator
 from pathlib import Path
+from typing import Any, cast
 
 import allure
 import pytest
@@ -17,13 +19,16 @@ def pytest_addoption(parser: pytest.Parser) -> None:
 
 
 @pytest.fixture(scope="session")
-def playwright_instance() -> Playwright:
+def playwright_instance() -> Generator[Playwright, None, None]:
     with sync_playwright() as playwright:
         yield playwright
 
 
 @pytest.fixture()
-def browser(pytestconfig: pytest.Config, playwright_instance: Playwright) -> Browser:
+def browser(
+    pytestconfig: pytest.Config,
+    playwright_instance: Playwright,
+) -> Generator[Browser, None, None]:
     browser_name = pytestconfig.getoption("--browser") or settings.browser
     headless_option = pytestconfig.getoption("--browser-headless")
     headless = settings.browser_headless if headless_option is None else headless_option == "true"
@@ -38,7 +43,7 @@ def browser(pytestconfig: pytest.Config, playwright_instance: Playwright) -> Bro
 
 
 @pytest.fixture()
-def context(browser: Browser) -> BrowserContext:
+def context(browser: Browser) -> Generator[BrowserContext, None, None]:
     context = browser.new_context(
         viewport={"width": settings.viewport_width, "height": settings.viewport_height}
     )
@@ -48,7 +53,7 @@ def context(browser: Browser) -> BrowserContext:
 
 
 @pytest.fixture()
-def page(context: BrowserContext) -> Page:
+def page(context: BrowserContext) -> Generator[Page, None, None]:
     page = context.new_page()
     yield page
 
@@ -73,7 +78,7 @@ def pytest_runtest_makereport(item: pytest.Item, call: pytest.CallInfo):
     if report.when != "call" or not report.failed:
         return
 
-    page = item.funcargs.get("page")
+    page = cast(Any, item).funcargs.get("page")
     if page is None:
         return
 
