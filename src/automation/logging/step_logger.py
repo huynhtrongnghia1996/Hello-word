@@ -1,6 +1,6 @@
 import sys
-from contextvars import ContextVar
 from collections.abc import Callable
+from contextvars import ContextVar
 from functools import wraps
 from typing import ParamSpec, TypeVar
 
