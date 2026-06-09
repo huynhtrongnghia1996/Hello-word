@@ -21,7 +21,6 @@ src/main/java/com/logtechub/automation
 ├── logging
 ├── pages
 │   ├── BasePage.java
-│   ├── common/LoginPage.java
 │   ├── efms/EfmsHomePage.java
 │   ├── etms/EtmsHomePage.java
 │   └── PageManager.java

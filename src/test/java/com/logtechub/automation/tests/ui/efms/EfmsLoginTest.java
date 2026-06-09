@@ -21,9 +21,9 @@ public class EfmsLoginTest extends BaseUiTest {
     @Description("Login to eFMS with the configured shared account.")
     public void shouldLoginToEfms() {
         pages().efmsHomePage().open().waitUntilReady();
-        loginWithConfiguredAccount();
+        pages().efmsHomePage().login(accountUsername(), accountPassword());
 
-        assertThat(pages().loginPage().isPasswordFieldVisible())
+        assertThat(pages().efmsHomePage().isPasswordFieldVisible())
                 .as("Password field should not remain visible after successful eFMS login")
                 .isFalse();
         assertThat(page().url()).contains("uat-efms.logtechub.com");

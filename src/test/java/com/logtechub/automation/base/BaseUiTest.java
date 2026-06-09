@@ -50,11 +50,11 @@ public abstract class BaseUiTest {
         return manager;
     }
 
-    protected void loginWithConfiguredAccount() {
-        pages().loginPage().login(config.accountUsername(), requiredAccountPassword());
+    protected String accountUsername() {
+        return config.accountUsername();
     }
 
-    private String requiredAccountPassword() {
+    protected String accountPassword() {
         String password = config.accountPassword();
         if (password == null || password.trim().isEmpty()) {
             throw new SkipException("Set account.password or ACCOUNT_PASSWORD to run login tests.");

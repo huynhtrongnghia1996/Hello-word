@@ -21,9 +21,9 @@ public class EtmsLoginTest extends BaseUiTest {
     @Description("Login to eTMS with the configured shared account.")
     public void shouldLoginToEtms() {
         pages().etmsHomePage().open().waitUntilReady();
-        loginWithConfiguredAccount();
+        pages().etmsHomePage().login(accountUsername(), accountPassword());
 
-        assertThat(pages().loginPage().isPasswordFieldVisible())
+        assertThat(pages().etmsHomePage().isPasswordFieldVisible())
                 .as("Password field should not remain visible after successful eTMS login")
                 .isFalse();
         assertThat(page().url()).contains("staging-itllog-etms.logtechub.com");
