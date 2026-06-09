@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import sys
 from collections.abc import Generator
 from pathlib import Path
 from typing import Any, cast
@@ -100,6 +101,8 @@ def pytest_runtest_makereport(item: pytest.Item, call: pytest.CallInfo):
     method_logs = get_step_logs()
     if method_logs:
         report.extras.append(extras.text("\n".join(method_logs), name="Method logs"))
+        for line in method_logs:
+            print(line, file=sys.__stdout__, flush=True)
 
     if report.passed:
         logger.success(message)
