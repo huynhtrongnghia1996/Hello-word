@@ -105,7 +105,9 @@ def pytest_runtest_makereport(item: pytest.Item, call: pytest.CallInfo):
 
     page = cast(Any, item).funcargs.get("page")
     if page is None:
-        report.extras.append(extras.text("No Playwright page fixture available", name="Failure note"))
+        report.extras.append(
+            extras.text("No Playwright page fixture available", name="Failure note")
+        )
         return
 
     screenshot_dir = Path(settings.screenshot_dir)
