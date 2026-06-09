@@ -17,7 +17,7 @@
         <env>UAT</env>
         <suiteXmlFile>src/test/resources/testng/testng-uat-ui.xml</suiteXmlFile>
         <browser></browser>
-        <headless>true</headless>
+        <browser.headless>false</browser.headless>
 
         <testng.version>7.11.0</testng.version>
         <playwright.version>1.52.0</playwright.version>
@@ -123,8 +123,7 @@
                     </suiteXmlFiles>
                     <systemPropertyVariables>
                         <env>${env}</env>
-                        <headless>${headless}</headless>
-                        <browser.headless>${headless}</browser.headless>
+                        <browser.headless>${browser.headless}</browser.headless>
                         <allure.results.directory>${allure.results.directory}</allure.results.directory>
                     </systemPropertyVariables>
                     <argLine>-javaagent:${settings.localRepository}/org/aspectj/aspectjweaver/${aspectj.version}/aspectjweaver-${aspectj.version}.jar</argLine>

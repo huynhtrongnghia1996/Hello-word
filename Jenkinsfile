@@ -33,7 +33,7 @@ pipeline {
                       -Denv=${ENV} \
                       -DsuiteXmlFile=${SUITE} \
                       -Dbrowser=${BROWSER} \
-                      -Dheadless=${HEADLESS}
+                      -Dbrowser.headless=${HEADLESS}
                 '''
             }
         }

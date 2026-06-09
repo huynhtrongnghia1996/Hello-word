@@ -1,6 +1,7 @@
 package com.logtechub.automation.base;
 
 import com.logtechub.automation.config.ConfigManager;
+import com.logtechub.automation.pages.PageManager;
 import com.logtechub.automation.playwright.PlaywrightManager;
 import com.logtechub.automation.playwright.SupportedBrowser;
 import com.microsoft.playwright.Page;
@@ -11,6 +12,7 @@ import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 
 public abstract class BaseUiTest {
+    private final ThreadLocal<PageManager> pageManager = new ThreadLocal<>();
     protected final ConfigManager config = ConfigManager.getInstance();
 
     @BeforeMethod(alwaysRun = true)
@@ -25,15 +27,25 @@ public abstract class BaseUiTest {
         }
 
         PlaywrightManager.start(SupportedBrowser.from(browser));
+        pageManager.set(new PageManager(page()));
     }
 
     @AfterMethod(alwaysRun = true)
     public void tearDown(ITestResult result) {
         boolean failed = result.getStatus() == ITestResult.FAILURE;
         PlaywrightManager.stop(failed);
+        pageManager.remove();
     }
 
     protected Page page() {
         return PlaywrightManager.page();
+    }
+
+    protected PageManager pages() {
+        PageManager manager = pageManager.get();
+        if (manager == null) {
+            throw new IllegalStateException("PageManager has not been initialized for this test thread.");
+        }
+        return manager;
     }
 }

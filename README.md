@@ -7,6 +7,7 @@ Automation framework for EFMS UAT using Java 17, Maven, TestNG, Playwright Java,
 - Environment: `UAT`
 - UI URL: `https://uat-efms.logtechub.com/en/#/home`
 - Supported browsers: `chrome`, `edge`
+- Default browser mode: `browser.headless=false` so Chrome/Edge opens in headed mode when a display is available
 
 ## Project structure
 
@@ -17,6 +18,9 @@ src/main/java/com/logtechub/automation
 ├── database
 ├── logging
 ├── pages
+│   ├── BasePage.java
+│   ├── HomePage.java
+│   └── PageManager.java
 ├── playwright
 └── reporting
 
@@ -49,25 +53,31 @@ mvn -B -DskipTests exec:java -Dexec.mainClass=com.microsoft.playwright.CLI -Dexe
 Run UAT UI suite on both Chrome and Edge:
 
 ```bash
-mvn clean test -Denv=UAT -DsuiteXmlFile=src/test/resources/testng/testng-uat-ui.xml -Dheadless=true
+mvn clean test -Denv=UAT -DsuiteXmlFile=src/test/resources/testng/testng-uat-ui.xml -Dbrowser.headless=false
 ```
 
 Run only Chrome:
 
 ```bash
-mvn clean test -Denv=UAT -DsuiteXmlFile=src/test/resources/testng/testng-uat-single-browser.xml -Dbrowser=chrome -Dheadless=true
+mvn clean test -Denv=UAT -DsuiteXmlFile=src/test/resources/testng/testng-uat-single-browser.xml -Dbrowser=chrome -Dbrowser.headless=false
 ```
 
 Run only Edge:
 
 ```bash
-mvn clean test -Denv=UAT -DsuiteXmlFile=src/test/resources/testng/testng-uat-single-browser.xml -Dbrowser=edge -Dheadless=true
+mvn clean test -Denv=UAT -DsuiteXmlFile=src/test/resources/testng/testng-uat-single-browser.xml -Dbrowser=edge -Dbrowser.headless=false
+```
+
+Run in headless mode for CI/server environments:
+
+```bash
+mvn clean test -Denv=UAT -DsuiteXmlFile=src/test/resources/testng/testng-uat-ui.xml -Dbrowser.headless=true
 ```
 
 Run tests and generate a static Allure HTML report:
 
 ```bash
-mvn clean test allure:report -Denv=UAT -DsuiteXmlFile=src/test/resources/testng/testng-uat-ui.xml -Dheadless=true
+mvn clean test allure:report -Denv=UAT -DsuiteXmlFile=src/test/resources/testng/testng-uat-ui.xml -Dbrowser.headless=true
 ```
 
 The generated HTML entry point is:

@@ -2,7 +2,6 @@ package com.logtechub.automation.tests.ui;
 
 import com.logtechub.automation.base.BaseUiTest;
 import com.logtechub.automation.listeners.RetryAnalyzer;
-import com.logtechub.automation.pages.HomePage;
 import io.qameta.allure.Description;
 import io.qameta.allure.Epic;
 import io.qameta.allure.Feature;
@@ -21,9 +20,9 @@ public class UatHomePageTest extends BaseUiTest {
     @Severity(SeverityLevel.CRITICAL)
     @Description("Verify EFMS UAT home page can be opened on configured browser channels.")
     public void shouldOpenUatHomePage() {
-        HomePage homePage = new HomePage(page()).open().waitUntilReady();
+        pages().homePage().open().waitUntilReady();
 
-        assertThat(homePage.currentUrl())
+        assertThat(pages().homePage().currentUrl())
                 .as("UAT home page URL")
                 .contains("uat-efms.logtechub.com")
                 .contains("/#/home");

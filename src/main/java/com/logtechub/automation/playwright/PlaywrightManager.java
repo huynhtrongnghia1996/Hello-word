@@ -27,10 +27,11 @@ public final class PlaywrightManager {
     public static Page start(SupportedBrowser supportedBrowser) {
         ConfigManager config = ConfigManager.getInstance();
         Playwright playwright = Playwright.create();
+        boolean headless = config.getBoolean("browser.headless", false);
 
         Browser browser = playwright.chromium().launch(new com.microsoft.playwright.BrowserType.LaunchOptions()
                 .setChannel(supportedBrowser.channel())
-                .setHeadless(config.getBoolean("browser.headless", true))
+                .setHeadless(headless)
                 .setSlowMo(config.getLong("browser.slowMo", 0)));
 
         Browser.NewContextOptions contextOptions = new Browser.NewContextOptions()
@@ -62,8 +63,8 @@ public final class PlaywrightManager {
         PAGE.set(page);
         BROWSER_TYPE.set(supportedBrowser);
 
-        LOGGER.info("Started Playwright session. env={}, browser={}, url={}",
-                config.environment(), supportedBrowser.value(), config.baseUrl());
+        LOGGER.info("Started Playwright session. env={}, browser={}, headless={}, url={}",
+                config.environment(), supportedBrowser.value(), headless, config.baseUrl());
         return page;
     }
 
