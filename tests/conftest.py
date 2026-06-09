@@ -10,7 +10,7 @@ from playwright.sync_api import Browser, BrowserContext, Page, Playwright, sync_
 from pytest_html import extras
 
 from automation.config import get_settings, settings
-from automation.logging import logger
+from automation.logging import get_step_logs, logger, reset_step_logs
 from automation.pages import PageManager
 
 
@@ -78,6 +78,11 @@ def account_password() -> str:
     return password
 
 
+def pytest_runtest_setup(item: pytest.Item) -> None:
+    del item
+    reset_step_logs()
+
+
 @pytest.hookimpl(hookwrapper=True)
 def pytest_runtest_makereport(item: pytest.Item, call: pytest.CallInfo):
     outcome = yield
@@ -92,6 +97,9 @@ def pytest_runtest_makereport(item: pytest.Item, call: pytest.CallInfo):
     message = f"{status}: {item.nodeid}"
     report.extras = getattr(report, "extras", [])
     report.extras.append(extras.text(message, name="Test result"))
+    method_logs = get_step_logs()
+    if method_logs:
+        report.extras.append(extras.text("\n".join(method_logs), name="Method logs"))
 
     if report.passed:
         logger.success(message)
