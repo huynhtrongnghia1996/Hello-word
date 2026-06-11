@@ -1,0 +1,56 @@
+---
+description: Quy ước tạo/sửa Page Object cho framework eFMS/eTMS.
+globs: src/automation/pages/**/*.py
+alwaysApply: false
+---
+
+# Quy ước PAGE OBJECT
+
+Áp dụng cho `src/automation/pages/**`. Đọc kèm `framework-role`.
+
+## Cấu trúc
+
+- Mỗi hệ thống một thư mục: `pages/efms/`, `pages/etms/`. Mỗi page là 1 class kế thừa `BasePage`.
+- Đăng ký page mới vào `PageManager` bằng property khởi tạo lazy + cache (giống `efms_home_page`).
+- `__init__.py` của package phải `export` class qua `__all__`.
+
+## Quy tắc viết method
+
+1. **Kế thừa `BasePage`** và dùng tiện ích của nó: `open_url`, `wait_for_visible`, `find_visible`, `wait_for_dom_content_loaded`, `current_url`.
+2. **Selector dạng danh sách dự phòng** đặt ở class-level (`username_selectors`, `password_selectors`, ...). Dùng `self.wait_for_visible(self.<list>, "tên phần tử")` để bền với khác biệt DOM.
+3. **Bọc `@log_method("Mô tả bước")`** cho mọi hành động (open/login/click/check...). Mô tả bằng tiếng người, dùng cho report.
+4. **Trả `self`** ở các method thao tác để cho phép chaining (`open().login(...)`). Method kiểm tra (is_*) trả `bool`.
+5. **Type hints đầy đủ**; URL/username lấy từ `settings`, không hardcode.
+
+## Mẫu page object mới
+
+```python
+from automation.config import settings
+from automation.logging import log_method
+from automation.pages.base_page import BasePage
+
+
+class EfmsOrderPage(BasePage):
+    create_button_selectors = ["button:has-text('Create')", "button[type='submit']"]
+
+    @log_method("Open eFMS order page")
+    def open(self) -> "EfmsOrderPage":
+        self.open_url(f"{settings.efms_base_url}")
+        return self
+
+    @log_method("Click create order")
+    def create_order(self) -> "EfmsOrderPage":
+        self.wait_for_visible(self.create_button_selectors, "eFMS create button").click()
+        self.wait_for_dom_content_loaded()
+        return self
+```
+
+## Đăng ký vào PageManager
+
+```python
+@property
+def efms_order_page(self) -> EfmsOrderPage:
+    if self._efms_order_page is None:
+        self._efms_order_page = EfmsOrderPage(self.page)
+    return self._efms_order_page
+```

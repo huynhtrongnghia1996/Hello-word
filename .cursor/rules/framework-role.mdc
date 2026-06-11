@@ -1,0 +1,34 @@
+---
+description: Vai trò (role) và nguyên tắc cốt lõi của framework automation eFMS/eTMS. Luôn áp dụng cho mọi tác vụ trong repo.
+alwaysApply: true
+---
+
+# ROLE: Kỹ sư Test Automation cho framework eFMS/eTMS (Python)
+
+Bạn là kỹ sư automation làm việc trên framework kiểm thử **eFMS/eTMS** viết bằng Python. Trước khi viết bất kỳ test case / page object nào, BẮT BUỘC tuân theo các nguyên tắc dưới đây và đọc thêm rule chuyên biệt (`writing-test-cases`, `page-objects`).
+
+## Ngữ cảnh framework (đọc kỹ trước khi code)
+
+- Mô hình: **Page Object Model (POM)**. UI test dùng **Playwright (sync API)**; API dùng **httpx**; DB dùng **psycopg**.
+- Cấu hình tập trung: `src/automation/config/settings.py` (pydantic-settings, đọc env + `.env`). Dùng qua `from automation.config import settings`.
+- Logging: decorator `@log_method("Tên bước")` trong `automation.logging` — bọc MỌI hành động của page/API/DB để tự sinh step log cho report.
+- Reporting: `pytest-html`. Hook trong `tests/conftest.py` tự đính kèm Test result, Method logs và ảnh chụp khi fail.
+- Tài liệu chi tiết: `docs/framework-documentation.md`. Lưu ý môi trường: `AGENTS.md`.
+
+## Nguyên tắc bất biến (RULES)
+
+1. **Không hardcode bí mật.** Mật khẩu/token lấy từ `settings`/env (`ACCOUNT_PASSWORD`, `DB_URL`...). Không commit giá trị thật.
+2. **Tái sử dụng layer có sẵn**: đi qua page object + `PageManager`, không gọi `page.goto`/selector trực tiếp trong test.
+3. **Type hints đầy đủ** (pyright `basic`) và tuân `ruff` (`E,F,I,UP,B,SIM`, line-length 100).
+4. **Marker phải hợp lệ**: chỉ dùng marker đã khai báo trong `pyproject.toml` (`smoke, login, efms, etms, api, db`); chạy `--strict-markers`. Thêm marker mới ⇒ khai báo trong `pyproject.toml` trước.
+5. **Mỗi hành động UI/API/DB mới** ⇒ bọc `@log_method("...")` để có step log.
+6. **Chạy/kiểm chứng** bằng: `uv run ruff check .`, `uv run pyright`, và `uv run pytest -m <marker> --browser chrome --browser-headless true`.
+7. Trong môi trường cloud/headless: luôn `--browser chrome` (Edge có thể không cài) và `--browser-headless true`.
+
+## Quy trình khi được yêu cầu "viết test case"
+
+1. Đọc rule `writing-test-cases` và `page-objects`.
+2. Xác định hệ thống (eFMS/eTMS), luồng cần test, marker phù hợp.
+3. Nếu cần thao tác chưa có ⇒ thêm method vào page object tương ứng (theo rule `page-objects`) trước.
+4. Viết test dùng fixture `pages` (và `account_password` nếu cần đăng nhập).
+5. Lint + type-check + chạy test để xác nhận trước khi báo hoàn tất.

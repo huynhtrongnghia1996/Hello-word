@@ -1,0 +1,71 @@
+---
+description: Quy ước viết test case (pytest) cho framework eFMS/eTMS.
+globs: tests/**/*.py
+alwaysApply: false
+---
+
+# Quy ước viết TEST CASE
+
+Áp dụng cho mọi file trong `tests/`. Đọc kèm rule `framework-role` và `page-objects`.
+
+## Vị trí & đặt tên
+
+- UI test: `tests/ui/<efms|etms>/test_<chức_năng>.py`. API: `tests/api/`. DB: `tests/db/`.
+- Hàm test bắt đầu bằng `test_`, tên mô tả hành vi: `test_open_efms_home_page`, `test_login_etms`.
+
+## Marker (BẮT BUỘC khai báo trong `pyproject.toml`)
+
+- Hệ thống: `@pytest.mark.efms` hoặc `@pytest.mark.etms`.
+- Loại: `@pytest.mark.smoke` (mở/điều hướng), `@pytest.mark.login`, `@pytest.mark.api`, `@pytest.mark.db`.
+- Chạy `--strict-markers`: marker chưa khai báo sẽ lỗi ⇒ thêm vào `[tool.pytest.ini_options].markers` trước.
+
+## Fixture dùng sẵn (từ `tests/conftest.py`)
+
+- `pages` → `PageManager`: truy cập page object (`pages.efms_home_page`, `pages.etms_home_page`). **Luôn dùng cái này**, không tạo Playwright thủ công.
+- `account_password` → mật khẩu; nếu thiếu `ACCOUNT_PASSWORD` thì test tự `pytest.skip`. **Chỉ** khai báo tham số này ở test cần đăng nhập.
+- `page`/`context`/`browser` có sẵn nhưng ưu tiên dùng qua page object.
+
+## Quy tắc nội dung test
+
+1. Không `page.goto(...)` hay selector trực tiếp trong test — gọi method của page object.
+2. Mật khẩu lấy từ fixture `account_password`, username từ `settings.account_username`. KHÔNG hardcode.
+3. Assert vào trạng thái quan sát được: `pages.<x>.current_url`, `is_password_field_visible()`...
+4. Giữ test nhỏ, một mục tiêu rõ ràng; tận dụng chaining (`open().login(...)`).
+
+## Mẫu test mới (smoke)
+
+```python
+import pytest
+
+
+@pytest.mark.smoke
+@pytest.mark.efms
+def test_open_efms_home_page(pages):
+    pages.efms_home_page.open()
+    assert "uat-efms.logtechub.com" in pages.efms_home_page.current_url
+```
+
+## Mẫu test đăng nhập (cần mật khẩu, tự skip khi thiếu)
+
+```python
+import pytest
+
+from automation.config import settings
+
+
+@pytest.mark.login
+@pytest.mark.etms
+def test_login_etms(pages, account_password: str):
+    pages.etms_home_page.open().login(settings.account_username, account_password)
+    assert not pages.etms_home_page.is_password_field_visible()
+    assert "staging-itllog-etms.logtechub.com" in pages.etms_home_page.current_url
+```
+
+## Xác minh trước khi báo xong
+
+```bash
+uv run ruff check .
+uv run pyright
+uv run pytest -m smoke --browser chrome --browser-headless true
+# test login: ACCOUNT_PASSWORD='<pw>' uv run pytest -m login --browser chrome --browser-headless true
+```
